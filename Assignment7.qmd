@@ -1,0 +1,89 @@
+---
+title: "Toolkit 7 assignment"
+author: "Karina Dal"
+format: html
+editor: visual
+---
+
+## Quarto
+
+I created a quarto file using R studio make new file, and i'll be doing my codes and notes inside here.
+
+## Running Code
+
+**Task 1**: Load the "iris" dataset and transform it to longer.
+
+1.  (Use **tidyr** and dplyr libraries whenever possible, to do the
+
+    following:)
+
+    Installing if we don't have them, and then loading necessary libraries for our code to work:
+
+```{r}
+install.packages("dplyr")
+install.packages("tidyr")
+library(dplyr)
+library(tidyr)
+```
+
+Loading our iris data file:
+
+```{r}
+data("iris")
+```
+
+Then, we are transforming out dataset to longer format to perform the needed operations with tidyr more easily:
+
+```{r}
+iris_long <- iris %>%
+  pivot_longer(cols = -Species, names_to = "Trait", values_to = "Size")
+```
+
+This will create a new table "iris_long", where we'll have three columns: Species (specified -Species will pivot all columns except for species), trait being the name of the plant part and its parameter for example "petal.length", and the 3rd column: Size.
+
+Now, using dplyr, I'm going to answer the questions:
+
+**Task 2.1:** What is the **mean, length** and **width** of the **sepal** and **petal** of each species?
+
+```{r}
+iris_summary <- iris_long %>%
+  group_by(Species, Trait) %>%
+  summarize(
+    mean_size = mean(Size),
+  )
+
+iris_summary
+
+```
+
+We're saving our calculated data in iris_summary, loading it from iris_long, we're doing the operations by pipeline, then we're using group_by(Species, Trait) to group by species and traits, then we use another pipeline to load data gotten from the summarize() command, which saves the means in mean_size, and calculates the means using the mean(Size) function.
+
+**Task 2.2:** What is the **largest** and **widest**,  **petal** and **sepal**, of **virginica** and **versicolor** species?
+
+```{r}
+iris_max <- iris_long %>%
+  filter(Species %in% c("virginica", "versicolor")) %>%
+  group_by(Species, Trait) %>%
+  summarize(
+    max_size = max(Size),
+    
+  )
+
+iris_max
+```
+
+Using data from iris_long, saving it in iris_max, using pipelines, we're using the filter() function to filter data only from the chosen species (Species %in% c("virginica", "versicolor") meaning we're choosing only these species, and then we use the summarize() function to calculate the maxes with max(size) of each parameter of length and width of petal and sepal of each of the chosen species.
+
+**Task 2.3:** For each species, for sepal and petal width and length, how many observations are above the mean?
+
+```{r}
+iris_above <- iris_long %>%
+  group_by(Species, Trait) %>%
+  mutate(mean_size = mean(Size)) %>%  
+  filter(Size > mean_size) %>%       
+  summarize(Count_Above_Mean = n())
+
+iris_above
+```
+
+Using the data from iris_long, saving it in iris_above, using pipelines, firstly we're using group_by(Species, Trait) to group by Species and traits, then we use mutate(mean_mize = mean(Size)) which adds a new column where the means of the size are contained, then filters with filter(Size \> mean_size) the values that are only appliable to the condition where size is bigger than calculated mean size, and then summarize(Count_Above_Mean = n()) counts how many rows remain in each group, with n() counting numbers of rows in each group.
